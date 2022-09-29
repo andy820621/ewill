@@ -1,7 +1,12 @@
 <script setup>
 import { reactive, ref, onMounted } from "vue";
+
+// Form Start
 const buttonMode = ref(null);
 const form = ref(null);
+
+const storeLists = reactive(["store1", "strore2", "store3", "store4"]);
+const noResult = ref(false);
 
 const initialData = () => ({
 	store: "",
@@ -26,16 +31,12 @@ const inputs = reactive([
 	payment,
 ]);
 onMounted(() => {
-	setTimeout(() => {
-		inputs.forEach((input) => {
-			input.value.addEventListener("blur", () =>
-				toggleInValidClass(input.value)
-			);
-			input.value.nextElementSibling.addEventListener("click", () =>
-				input.value.reportValidity()
-			);
-		});
-	}, 2000);
+	inputs.forEach((input) => {
+		input.value.addEventListener("blur", () => toggleInValidClass(input.value));
+		input.value.nextElementSibling.addEventListener("click", () =>
+			input.value.reportValidity()
+		);
+	});
 });
 
 function submitHandler(e) {
@@ -72,14 +73,40 @@ function addShakeAnimation(target) {
 		target.classList.remove("shake")
 	);
 }
+
+function storeInputHandler() {
+	let value = data.store;
+
+	const exist = storeLists.some((list) => list.indexOf(value) >= 0);
+
+	if (exist) return (noResult.value = false);
+
+	noResult.value = true;
+}
+
+// Badge
+const badgeArray = reactive([
+	{ green: true, badge: "A", number: "ONE", title: "dehumidifier" },
+	{ green: true, badge: "B", number: "ONE", title: "range hood" },
+	{ green: true, badge: "C", number: "ONE", title: "vacuum cleaner" },
+	{ green: false, badge: "D", number: "ONE", title: "toaster" },
+	{ green: false, badge: "E", number: "ONE", title: "scale" },
+	{ green: false, badge: "F", number: "ONE", title: "starightening iron" },
+	{ green: false, badge: "G", number: "FIVE", title: "vacuum cleaner" },
+	{ green: false, badge: "H", number: "TEN", title: "rice cooker" },
+]);
+
+// Lighthouse
+
+const lineAngle = (Math.atan2(20, 75) * 180) / Math.PI;
 </script>
 
 <template>
 	<header>
 		<div class="container">
 			<h1>
-				There is no one<br />
-				who loves pain
+				There is no one
+				<p>who loves pain</p>
 			</h1>
 			<BaseButton link class="btn" :target="form">FORM</BaseButton>
 			<BaseCard>
@@ -219,10 +246,22 @@ function addShakeAnimation(target) {
 						</g>
 					</svg>
 					<!-- Bubble -->
-					<span class="bubble big"></span>
-					<span class="bubble small"></span>
-					<span class="bubble big"></span>
-					<span class="bubble small"></span>
+					<span
+						class="bubble big"
+						style="--top: -10%; --left: 33%; --delay: 0s"
+					></span>
+					<span
+						class="bubble big"
+						style="--top: -5%; --left: 60%; --delay: 1.8s"
+					></span>
+					<span
+						class="bubble small"
+						style="--top: -40%; --left: 60%; --delay: -0.4s"
+					></span>
+					<span
+						class="bubble small"
+						style="--top: -20px; --left: 50%; --delay: 1.2s"
+					></span>
 				</div>
 				<div class="sup-bottom">
 					<svg
@@ -632,18 +671,24 @@ function addShakeAnimation(target) {
 								list="data"
 								ref="storeInput"
 								pattern="^(store1|store2|store3|store4)$"
-								title="Please enter an existing store"
+								title="🙏 Please enter an existing store name 🙏"
 								required
 								placeholder="placeholder text"
+								@input="storeInputHandler"
 							/>
 							<span class="msg showError"
 								>InValid (Click to see more rules)</span
 							>
 							<datalist id="data">
-								<option>store1</option>
-								<option>store2</option>
-								<option>store3</option>
-								<option>store4</option>
+								<option
+									v-for="store in storeLists"
+									:value="store"
+									:key="store"
+								></option>
+								<option v-if="noResult" :value="data.store">
+									No Result...
+								</option>
+								>
 							</datalist>
 							<img src="./image/drop-down.svg" alt="icon" />
 						</div>
@@ -655,7 +700,7 @@ function addShakeAnimation(target) {
 								v-model.trim="data.name"
 								ref="nameInput"
 								pattern="^[\u4e00-\u9fa5]+$|^[a-zA-Z\s]+$"
-								title="Chinese or English only"
+								title="🙏 Please enter English or Chinese only 🙏"
 								required
 								placeholder="placeholder text"
 							/>
@@ -670,9 +715,9 @@ function addShakeAnimation(target) {
 								id="phone"
 								v-model.trim="data.phone"
 								ref="phoneInput"
-								pattern="[0-9]{4}[0-9]{3}[0-9]{3}"
+								pattern="(09)+[0-9]{8}"
 								maxlength="10"
-								title="Ten digits please"
+								title="🙏 Please enter the correct phone format 🙏"
 								required
 								placeholder="placeholder text"
 							/>
@@ -729,11 +774,41 @@ function addShakeAnimation(target) {
 			</div>
 		</div>
 
-		<div id="badge"></div>
+		<div id="badge">
+			<div class="container">
+				<ul>
+					<li v-for="data in badgeArray" :key="data.badge">
+						<BadgeCard :green="data.green">
+							<template v-slot:badge>{{ data.badge }}</template>
+							<template v-slot:number>{{ data.number }}</template>
+							<template v-slot:title>{{ data.title }}</template>
+						</BadgeCard>
+					</li>
+				</ul>
+			</div>
+		</div>
 
-		<div id="lighthouse"></div>
+		<div id="lighthouse">
+			<div class="container">
+				<div class="title" :style="{ '--angle': lineAngle + 'deg' }">
+					<p class="date">13.32</p>
+					<p class="content">who seeks after it and<br />wants to have it</p>
+				</div>
+				<img src="./image/lighthouse.png" alt="lighthouse image" />
+			</div>
+		</div>
 	</main>
-	<footer></footer>
+	<footer id="footer">
+		<BaseCard>
+			<div class="container">
+				<p class="title">
+					Neque porro quisquam <br />
+					est qui dolorem!
+				</p>
+				<img src="./image/market.png" alt="market image" />
+			</div>
+		</BaseCard>
+	</footer>
 </template>
 
 <style lang="scss">
@@ -743,12 +818,17 @@ function addShakeAnimation(target) {
 	--bg-lightblue: #dae4f1;
 	--bg-brown: #e2d9d3;
 	--clr-darkblue: #204379;
+	--clr-valid: rgb(42, 148, 100);
+	--clr-invalid: rgb(180, 30, 30);
 }
 *,
 *::before,
 *::after {
 	box-sizing: border-box;
 	margin: 0;
+}
+html {
+	scroll-behavior: smooth;
 }
 html,
 body {
@@ -758,26 +838,33 @@ body {
 	font-family: "Noto Sans TC", sans-serif;
 	background-color: var(--bg-brown);
 	color: var(--clr-darkblue);
+	width: 100%;
+}
+#app {
+	width: 100%;
 }
 .container {
 	display: grid;
 	place-items: center;
-	width: min(92%, 800px);
+	width: min(calc(100% - 3rem), 800px);
 	margin: 3rem auto 5rem;
 }
 
 // Header Design Start
+
 header {
-	overflow-x: hidden;
+	overflow: hidden;
 	margin: 0;
+	padding: 0;
 	position: relative;
-	width: 100vw;
+	width: 100%;
 	min-height: 700px;
 	background-color: var(--clr-darkblue);
 	.container {
 		text-align: center;
 		position: relative;
 		z-index: 1;
+		padding-bottom: 3rem;
 
 		h1 {
 			color: #fff;
@@ -785,10 +872,14 @@ header {
 			font-size: 32px;
 			line-height: 125%;
 			letter-spacing: 0.2em;
-			margin-bottom: 0.8em;
+			margin-bottom: 32px;
+			p {
+				font-size: 28px;
+				line-height: 35px;
+				letter-spacing: 0.2em;
+			}
 		}
 		.btn {
-			box-shadow: 0 0 20px hsl(0 90% 81% / 0.91);
 			letter-spacing: 0.6em;
 			position: relative;
 			&::before {
@@ -798,7 +889,7 @@ header {
 				inset: 0;
 				background-image: linear-gradient(
 					90deg,
-					#efabc8,
+					#efdbc8,
 					#e9c87f,
 					#b2e1ea,
 					#90cae5,
@@ -827,6 +918,10 @@ header {
 				margin: 0.5rem 0;
 				display: inline-flex;
 				gap: 0.4rem;
+				font-size: 18px;
+				font-weight: 700;
+				line-height: 23px;
+				letter-spacing: 0em;
 			}
 			ul {
 				margin: 0.5rem 0 1rem;
@@ -857,88 +952,30 @@ header {
 					position: absolute;
 					border: 1px solid #fff;
 					border-radius: 50%;
+					left: var(--left);
+					top: var(--top);
+					animation: floatBubble 4s var(--delay) linear infinite;
 				}
 				.small {
-					right: 30%;
-					top: -40%;
+					--translate: -2rem;
 					width: 12px;
 					height: 12px;
-					animation: floatSmall_1 4s 0.3s linear infinite;
-					&:last-child {
-						right: 40%;
-						top: -20px;
-						animation: floatSmall_2 4s linear infinite;
-					}
 				}
 				.big {
-					top: -10%;
-					left: 33%;
+					--translate: -3rem;
 					width: 20px;
 					height: 20px;
-					animation: floatBig_1 4s 0.6s linear infinite;
-					&:nth-child(2) {
-						top: -5%;
-						left: 60%;
-						animation: floatBig_2 4s 0.9s linear infinite;
-					}
 				}
-				@keyframes floatBig_1 {
+				@keyframes floatBubble {
 					0% {
 						opacity: 1;
 						transform: translateY(0);
 					}
 					50% {
-						transform: translateY(-3rem);
 						opacity: 0;
+						transform: translateY(var(--translate));
 					}
 					100% {
-						transform: translateY(0);
-						opacity: 0;
-					}
-				}
-				@keyframes floatBig_2 {
-					0% {
-						opacity: 0;
-					}
-					49% {
-						opacity: 0;
-					}
-					50% {
-						opacity: 1;
-						transform: translateY(0);
-					}
-					100% {
-						transform: translateY(-3rem);
-						opacity: 0;
-					}
-				}
-				@keyframes floatSmall_1 {
-					0% {
-						opacity: 1;
-						transform: translateY(0);
-					}
-					50% {
-						transform: translateY(-2rem);
-						opacity: 0;
-					}
-					100% {
-						transform: translateY(0);
-						opacity: 0;
-					}
-				}
-				@keyframes floatSmall_2 {
-					0% {
-						opacity: 0;
-					}
-					49% {
-						opacity: 0;
-					}
-					50% {
-						opacity: 1;
-						transform: translateY(0);
-					}
-					100% {
-						transform: translateY(-2rem);
 						opacity: 0;
 					}
 				}
@@ -1041,6 +1078,8 @@ header {
 		background-color: #fff;
 		padding: 2.5rem 1.25rem;
 		position: relative;
+		box-shadow: 0px 1px 20px 0px #49484840;
+
 		.title {
 			position: absolute;
 			left: 50%;
@@ -1117,27 +1156,43 @@ header {
 				font-size: 0;
 			}
 
+			input,
+			select {
+				&:focus {
+					outline: none;
+					box-shadow: inset 0 0 0 1px var(--clr-darkblue);
+				}
+			}
+
 			&.valid {
 				input,
 				select {
-					border-color: rgb(42, 148, 100);
+					border-color: var(--clr-valid);
+					&:focus {
+						outline: none;
+						box-shadow: inset 0 0 0 1px var(--clr-valid);
+					}
 				}
 				label,
 				h3 {
-					color: rgb(42, 148, 100);
+					color: var(--clr-valid);
 				}
 			}
 
 			&.invalid {
 				input,
 				select {
-					border-color: rgb(180, 30, 30);
+					border-color: var(--clr-invalid);
+					&:focus {
+						outline: none;
+						box-shadow: inset 0 0 0 1px var(--clr-invalid);
+					}
 				}
 				label {
-					color: rgb(180, 30, 30);
+					color: var(--clr-invalid);
 				}
 				.msg.showError {
-					color: rgb(180, 30, 30);
+					color: var(--clr-invalid);
 					cursor: pointer;
 					opacity: 1;
 					visibility: visible;
@@ -1180,10 +1235,6 @@ header {
 		border-radius: 20px;
 
 		font: inherit;
-		&:focus {
-			outline: none;
-			box-shadow: inset 0 0 0 1px var(--clr-darkblue);
-		}
 	}
 	input[type="checkbox"] {
 		display: inline;
@@ -1216,6 +1267,12 @@ header {
 				color: #ffe3e3;
 			}
 		}
+		animation: shrink 2s ease-in-out infinite alternate;
+		@keyframes shrink {
+			100% {
+				transform: scale(1.1);
+			}
+		}
 	}
 	.shake {
 		animation: shake 0.5s ease-in-out;
@@ -1238,6 +1295,88 @@ header {
 		70%,
 		90% {
 			transform: translateX(2%);
+		}
+	}
+}
+
+// Badge Design
+#badge {
+	background-image: url(./image/抽獎沙子.png);
+	padding: 4rem 0 49px;
+	.container {
+		margin: 0 auto;
+	}
+	ul {
+		list-style: none;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		justify-content: center;
+		gap: 41px 1rem;
+		@media (min-width: 768px) {
+			grid-template-columns: repeat(3, 1fr);
+			gap: 41px 2rem;
+		}
+		padding: 0;
+	}
+}
+
+// Lighthouse Design
+#lighthouse {
+	.container {
+		margin: 40px auto;
+	}
+	.title {
+		margin-bottom: 1.25rem;
+		// line design
+		position: relative;
+		&::before,
+		&::after {
+			position: absolute;
+			content: "";
+			inset: 3.1px -19px;
+		}
+		&::before {
+			border-left: 1px solid var(--clr-darkblue);
+			transform: rotate(calc(var(--angle) * -1));
+			transform-origin: left center;
+		}
+		&::after {
+			border-right: 1px solid var(--clr-darkblue);
+			transform: rotate(var(--angle));
+			transform-origin: right center;
+		}
+	}
+	p {
+		font-size: 20px;
+		font-weight: 700;
+		line-height: 28px;
+		letter-spacing: 0em;
+		text-align: center;
+	}
+	.date {
+		color: var(--clr-primary);
+	}
+}
+
+// Footer Design
+footer#footer {
+	.card {
+		background-color: var(--clr-darkblue);
+		border-radius: 50px 50px 0 0;
+		border: 0;
+		padding: 40px 0;
+		margin: 0;
+		.container {
+			margin: 0 auto;
+		}
+		.title {
+			font-size: 20px;
+			font-weight: 700;
+			line-height: 40px;
+			letter-spacing: 0.2em;
+			text-align: center;
+			color: #fff;
+			margin-bottom: 1.5rem;
 		}
 	}
 }

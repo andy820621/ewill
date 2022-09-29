@@ -1,5 +1,5 @@
 {
-	"name": "project-name",
+	"name": "ewill",
 	"version": "0.0.0",
 	"scripts": {
 		"dev": "vite --host",
